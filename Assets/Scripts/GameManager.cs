@@ -1,13 +1,19 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
-    public int playerLife = 100;
-    public Text lifeText;
-    public GameObject winMessage;
+    public static GameManager Instance { get; private set; }
+
+    public Text lifeScoreText;
+    public Text playerStateText;
+    public Text winMessageText;
+    public Text SpeedBoostedText;
+    public GameObject celebrationEffect; //Particle system
+    public Transform player;
+
+
+    public int lifeScore = 100;
 
     private void Awake()
     {
@@ -21,20 +27,51 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void ReduceLife(int damage)
+    public void ReduceLife(int amount)
     {
-        playerLife -= damage;
-        lifeText.text = "Life: " + playerLife;
+        lifeScore -= amount;
+        UpdateLifeUI();
 
-        if (playerLife <= 0)
+        if (lifeScore <= 0)
         {
-            Debug.Log("Game Over!");
+            GameOver();
         }
     }
 
-    public void WinGame()
+    private void UpdateLifeUI()
     {
-        winMessage.SetActive(true);
-        Debug.Log("You Win!");
+        lifeScoreText.text = "Life: " + lifeScore;
+        lifeScoreText.color = (lifeScore < 30) ? Color.red : Color.white;
     }
+
+    private void GameOver()
+    {
+        winMessageText.text = "Game Over!";
+        Time.timeScale = 0;  // Stops the game
+        Application.Quit(); // Quits the game
+    }
+
+    public void DisplayWinMessage()
+    {
+        winMessageText.text = "Yay! You won!";
+        celebrationEffect.SetActive(true); // Activate particles
+        Instantiate(celebrationEffect, player.position, Quaternion.identity);
+
+    }
+
+    public void UpdatePlayerState(string state)
+    {
+        playerStateText.text = state;
+    }
+
+    public void DisplaySpeedBoostMessage(float duration)
+    {
+        SpeedBoostedText.gameObject.SetActive(true);
+        Invoke("HideSpeedBoostMessage", duration);
+        SpeedBoostedText.text = "Speed Boosted x 2!";
+    }
+
+    // Display celebration effect
+
+
 }
